@@ -7,8 +7,11 @@ const damageHeader = document.getElementById('damageHeader')
 
 
 function rollDie(number) {
-  let result = Math.ceil(Math.random() * number)
-  return result
+  const roll = {
+    value: Math.ceil(Math.random() * number),
+    match: false
+  }
+  return roll
 }
 
 function multiRoll(numberofRolls, diceMax) {
@@ -26,17 +29,19 @@ function attackVsDefense(attackDice, defenseDice) {
 
   for (i = 0; i < defenseRollResults.length; i++) {
     for (j = 0; j < damageResults.length; j++) {
-      if (defenseRollResults[i] === damageResults[j]) {
+      if (defenseRollResults[i].value === damageResults[j].value) {
+        defenseRollResults[i].match = true
+        damageResults[j].match = true
         damageResults.splice(j, 1)
         break
       }
     }
   }
-  return { damage: damageResults.length, attackRolls: attackRollResults.sort(), defenseRolls: defenseRollResults.sort() }
+  return { damage: damageResults.length, attackRolls: attackRollResults.sort((a, b) => a.value - b.value), defenseRolls: defenseRollResults.sort((a, b) => a.value - b.value), }
 }
 
 function handleDiceRoll() {
-  const { damage, attackRolls, defenseRolls } = attackVsDefense(attackDiceNumber.value, defenseDiceNumber.value)
+  const { damage, attackRolls, defenseRolls, } = attackVsDefense(attackDiceNumber.value, defenseDiceNumber.value)
   attackDiceContainer.innerText = ''
   defenseDiceContainer.innerText = ''
 
@@ -46,18 +51,28 @@ function handleDiceRoll() {
 
   for (const roll of attackRolls) {
     const imgElement = document.createElement('img')
-    imgElement.src = `assets/images/red-${roll}.png`
-    imgElement.className = `img-fluid col-3 m-1`
-    imgElement.alt = `red die ${roll}`
+    imgElement.src = `assets/images/red-${roll.value}.png`
+    imgElement.className = `img-fluid col-3 m-1 p-1`
+    imgElement.alt = `red die ${roll.value}`
+    if (roll.match === true) {
+      imgElement.classList.add('custom-block', 'opacity-50')
+    } else {
+      imgElement.classList.add('custom-hit')
+    }
 
     attackDiceContainer.appendChild(imgElement)
   }
 
   for (const roll of defenseRolls) {
     const imgElement = document.createElement('img')
-    imgElement.src = `assets/images/blue-${roll}.png`
-    imgElement.className = `img-fluid col-3 m-1`
-    imgElement.alt = `red die ${roll}`
+    imgElement.src = `assets/images/blue-${roll.value}.png`
+    imgElement.className = `img-fluid col-3 m-1 p-1`
+    imgElement.alt = `blue die ${roll.value}`
+    if (roll.match === true) {
+      imgElement.classList.add('custom-block', 'opacity-50')
+    } else {
+      imgElement.classList.add('opacity-25')
+    }
 
     defenseDiceContainer.appendChild(imgElement)
   }
