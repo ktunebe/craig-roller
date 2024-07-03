@@ -1,13 +1,22 @@
 const attackDiceNumber = document.getElementById('attackDiceNumber')
 const defenseDiceNumber = document.getElementById('defenseDiceNumber')
-const weaponSelect = document.getElementById('weaponSelect');
+const weaponSelectEl = document.getElementById('weaponSelect')
+const enemySelectEl = document.getElementById('enemySelect')
+const baseEnemiesToggle = document.getElementById('baseEnemies')
+const arenaEnemiesToggle = document.getElementById('arenaEnemies')
 const attackDiceContainer = document.getElementById('attackDiceContainer')
 const defenseDiceContainer = document.getElementById('defenseDiceContainer')
 const rollButton = document.getElementById('rollButton')
 const damageHeader = document.getElementById('damageHeader')
-let selectedWeapon
-let selectedEnemy
+const enemyStatsDisplay = document.getElementById('enemyStatsDisplay')
+const enemyAttackSpan = document.getElementById('enemyAttackSpan')
+const enemyPhyDefSpan = document.getElementById('enemyPhyDefSpan')
+const enemyMagDefSpan = document.getElementById('enemyMagDefSpan')
 
+let currentWeapon = null
+let currentEnemy = null
+
+/* -------- Weapon List -----------------------------=-------------------- */
 const weapons = {
   'club': {
     name: 'Club',
@@ -43,6 +52,7 @@ const weapons = {
   },
 }
 
+/* -------- Base Enemy List ---------------------=----------------------- */
 const arenaEnemies = {
   brutusTheBashful: {
     name: 'Brutus the Bashful',
@@ -126,6 +136,7 @@ const arenaEnemies = {
   } 
 }
 
+/* -------- Arena Enemy List =------------------------------------------- */
 const baseEnemies = {
   phytank: {
     name: 'Phytank',
@@ -177,7 +188,20 @@ const baseEnemies = {
   },	
 }
 
+/* -------- Populate List of enemies ------------------------------------ */
+function populateEnemyList(enemies) {
+  enemySelectEl.innerHTML = '<option selected>Select</option>'
 
+  Object.keys(enemies).forEach(key => {
+    const enemy = enemies[key];
+    const option = document.createElement('option');
+    option.value = key;
+    option.textContent = enemy.name;
+    enemySelectEl.appendChild(option);
+  });
+}
+
+/* -------- Single Die Roll --------------------------------------------- */
 function rollDie(number) {
   const roll = {
     value: Math.ceil(Math.random() * number),
@@ -187,6 +211,7 @@ function rollDie(number) {
   return roll
 }
 
+/* -------- Multiple Dice Roll ==---------------------------------------- */
 function multiRoll(numberofRolls, diceMax) {
   let rollResults = []
   for (let i = 0; i < numberofRolls; i++) {
@@ -194,7 +219,7 @@ function multiRoll(numberofRolls, diceMax) {
   }
   return rollResults
 }
-/* ---------------------------------------------------------------------------- */
+/* -------- Dice roll with defense -------------------------------------- */
 function attackVsDefense(attackDice, defenseDice) {
   const attackRollArray = multiRoll(attackDice, 6)
   const defenseRollArray = multiRoll(defenseDice, 6)
@@ -212,27 +237,28 @@ function attackVsDefense(attackDice, defenseDice) {
   }
   return { unblockedRolls: unblockedRollsArray.length, attackRolls: attackRollArray.sort((a, b) => a.value - b.value), defenseRolls: defenseRollArray.sort((a, b) => a.value - b.value), }
 }
-/* ---------------------------------------------------------------------------- */
-function handleDiceRoll() {
-  selectedWeapon = weapons[weaponSelect.value];
-  console.log(selectedWeapon)
-  console.log(selectedWeapon.type)
+/* -------- Handle Roll ------------------------------------------------- */
+function handleHeroRoll() {
+  console.log(currentWeapon)
+  console.log(currentWeapon.type)
+  const currentEnemyArmor = currentEnemy.armor[currentWeapon.type]
+
   attackDiceContainer.innerText = ''
   defenseDiceContainer.innerText = ''
-  let { unblockedRolls, attackRolls, defenseRolls, } = attackVsDefense(attackDiceNumber.value, defenseDiceNumber.value)
+  let { unblockedRolls, attackRolls, defenseRolls, } = attackVsDefense(attackDiceNumber.value, currentEnemyArmor)
   let damage = 0
 
   console.log(unblockedRolls)
   console.log(attackRolls)
   console.log(defenseRolls)
 
-  if (selectedWeapon === weapons.club) {
+  if (currentWeapon === weapons.club) {
     damage = checkClubHits(attackRolls)
-  } else if (selectedWeapon === weapons.sword) {
+  } else if (currentWeapon === weapons.sword) {
     const swordCrits = checkSixes(attackRolls)
     damage = unblockedRolls + swordCrits
     renderDefenseDice(defenseRolls)
-  } else if (selectedWeapon === weapons.magicStaff) {
+  } else if (currentWeapon === weapons.magicStaff) {
     const staffCrits = checkDoubles(attackRolls)
     damage = unblockedRolls + staffCrits
     renderDefenseDice(defenseRolls)
@@ -244,7 +270,7 @@ function handleDiceRoll() {
   damageHeader.innerText = `Damage: ${damage}`
 
 }
-/* ---------------------------------------------------------------------------- */
+/* -------- Render attack dice ------------------------------------------- */
 function renderAttackDice(attackRolls) {
   for (const roll of attackRolls) {
     const imgElement = document.createElement('img')
@@ -252,7 +278,7 @@ function renderAttackDice(attackRolls) {
     imgElement.className = `img-fluid col-3 m-1 p-1`
     imgElement.alt = `red die ${roll.value}`
 
-    if (selectedWeapon === weapons.club) {
+    if (currentWeapon === weapons.club) {
       roll.value >= 4 ? imgElement.classList.add('custom-hit') : imgElement.classList.add('opacity-50')
     } else {
       roll.match === true ? imgElement.classList.add('custom-block', 'opacity-50') : imgElement.classList.add('custom-hit')
@@ -267,7 +293,7 @@ function renderAttackDice(attackRolls) {
     attackDiceContainer.appendChild(imgElement)
   }
 }
-/* ---------------------------------------------------------------------------- */
+/* -------- Render defense dice ------------------------------------------ */
 function renderDefenseDice(defenseRolls) {
   for (const roll of defenseRolls) {
     const imgElement = document.createElement('img')
@@ -283,7 +309,7 @@ function renderDefenseDice(defenseRolls) {
     defenseDiceContainer.appendChild(imgElement)
   }
 }
-/* ---------------------------------------------------------------------------- */
+/* -------- Check for rolls of 4+ -------------------------------------- */
 function checkClubHits(rolls) {
   let clubDamage = 0
 
@@ -295,7 +321,7 @@ function checkClubHits(rolls) {
 
   return clubDamage
 }
-/* ---------------------------------------------------------------------------- */
+/* -------- Check for sets of doubles for magic staff ----------------- */
 function checkDoubles(rolls) {
   let crits = 0
   for (i = 0; i < rolls.length; i++) {
@@ -313,7 +339,7 @@ function checkDoubles(rolls) {
   return crits
 }
 
-/* ---------------------------------------------------------------------------- */
+/* -------- Check for sixes for sword roll -------------------------- */
 function checkSixes(attackRolls) {
   let crits = 0
   for (const roll of attackRolls) {
@@ -325,5 +351,52 @@ function checkSixes(attackRolls) {
   return crits
 }
 
-rollButton.addEventListener('click', handleDiceRoll)
+
+/* -------------------------------- INIT -------------------------------------------- */
+// Begin with base enemies in list
+populateEnemyList(baseEnemies)
+
+// Listen for base enemy toggle
+baseEnemiesToggle.addEventListener('change', function() {
+  if (this.checked) {
+      populateEnemyList(baseEnemies);
+  }
+})
+
+// Listen for arena enemy toggle
+arenaEnemiesToggle.addEventListener('change', function() {
+  if (this.checked) {
+      populateEnemyList(arenaEnemies);
+  }
+})
+
+enemySelectEl.addEventListener('change', function() {
+  const selectedEnemy = this.value;
+  if (selectedEnemy === 'Select') {
+      currentEnemy = null;
+  } else {
+      // If base is checked, enemies checks base enemies object; if arena is checked, enemies checks arena enemies object
+      const enemies = document.getElementById('baseEnemies').checked ? baseEnemies : arenaEnemies;
+      currentEnemy = enemies[selectedEnemy]
+      console.log(currentEnemy.attack)
+      enemyStatsDisplay.classList.remove('d-none')
+      enemyAttackSpan.innerText = `${currentEnemy.attack}`
+      enemyPhyDefSpan.innerText = `${currentEnemy.armor.physical}`
+      enemyMagDefSpan.innerText = `${currentEnemy.armor.magic}`
+  }
+  console.log(currentEnemy)
+})
+
+weaponSelectEl.addEventListener('change', function() {
+  const selectedWeapon = this.value;
+  if (selectedWeapon === 'Select') {
+      currentWeapon = null;
+  } else {
+      currentWeapon = weapons[selectedWeapon]
+  }
+  console.log(currentWeapon)
+})
+
+// Listen for roll button click
+rollButton.addEventListener('click', handleHeroRoll)
 
