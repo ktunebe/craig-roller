@@ -5,6 +5,8 @@ const attackDiceContainer = document.getElementById('attackDiceContainer')
 const defenseDiceContainer = document.getElementById('defenseDiceContainer')
 const rollButton = document.getElementById('rollButton')
 const damageHeader = document.getElementById('damageHeader')
+let selectedWeapon
+let selectedEnemy
 
 const weapons = {
   'club': {
@@ -41,7 +43,139 @@ const weapons = {
   },
 }
 
-let selectedWeapon
+const arenaEnemies = {
+  brutusTheBashful: {
+    name: 'Brutus the Bashful',
+    attack: 2,
+    armor: {
+      physical: 2,
+      magic: 1
+    }
+  },
+  silasTheSlow: {
+    name: 'Silas the Slow',
+    attack: 2,
+    armor: {
+      physical: 2,
+      magic: 1
+    }
+  },
+  lenaTheLowly: {
+    name: 'Lena the Lowly',
+    attack: 2,
+    armor: {
+      physical: 2,
+      magic: 1
+    }
+  },
+  rolfTheMeek: {
+    name: 'Rolf the Meek',
+    attack: 2,
+    armor: {
+      physical: 2,
+      magic: 1
+    }
+  },
+  fionaTheFierce: {
+    name: 'Fiona the Fierce',
+    attack: 2,
+    armor: {
+      physical: 3,
+      magic: 4
+    }
+  },
+  garrickTheGallant: {
+    name: 'Garrick the Gallant',
+    attack: 2,
+    armor: {
+      physical: 3,
+      magic: 4
+    }
+  },
+  elaraTheSwift: {
+    name: 'Elara the Swift',
+    attack: 2,
+    armor: {
+      physical: 3,
+      magic: 4
+    }
+  },
+  dariusTheDominator: {
+    name: 'Darius the Dominator',
+    attack: 3,
+    armor: {
+      physical: 4,
+      magic: 4
+    }
+  },
+  vesperTheValiant: {
+    name: 'Vesper the Valiant',
+    attack: 3,
+    armor: {
+      physical: 4,
+      magic: 4
+    }
+  },
+  championCraig: {
+    name: 'Champion Craig',
+    attack: 4,
+    armor: {
+      physical: 4,
+      magic: 4
+    }
+  } 
+}
+
+const baseEnemies = {
+  phytank: {
+    name: 'Phytank',
+    attack: 1,
+    armor: {
+      physical: 4,
+      magic: 0
+    }
+  },	
+  magtank: {
+    name: 'Magtank',
+    attack: 1,
+    armor: {
+      physical: 0,
+      magic: 4
+    }
+  },	
+  defguy: {
+    name: 'Defguy',
+    attack: 2,
+    armor: {
+      physical: 3,
+      magic: 3
+    }
+  },	
+  bigpow: {
+    name: 'Bigpow',
+    attack: 4,
+    armor: {
+      physical: 1,
+      magic: 1
+    }
+  },	
+  normal: {
+    name: 'Normal',
+    attack: 3,
+    armor: {
+      physical: 2,
+      magic: 2
+    }
+  },	
+  jailer: {
+    name: 'Jailer',
+    attack: 1,
+    armor: {
+      physical: 6,
+      magic: 6
+    }
+  },	
+}
 
 
 function rollDie(number) {
@@ -98,6 +232,10 @@ function handleDiceRoll() {
     const swordCrits = checkSixes(attackRolls)
     damage = unblockedRolls + swordCrits
     renderDefenseDice(defenseRolls)
+  } else if (selectedWeapon === weapons.magicStaff) {
+    const staffCrits = checkDoubles(attackRolls)
+    damage = unblockedRolls + staffCrits
+    renderDefenseDice(defenseRolls)
   } else {
     damage = unblockedRolls
     renderDefenseDice(defenseRolls)
@@ -146,10 +284,10 @@ function renderDefenseDice(defenseRolls) {
   }
 }
 /* ---------------------------------------------------------------------------- */
-function checkClubHits(attackRolls) {
+function checkClubHits(rolls) {
   let clubDamage = 0
 
-  for (const roll of attackRolls) {
+  for (const roll of rolls) {
     if (roll.value >= 4) {
       clubDamage++
     }
@@ -158,6 +296,22 @@ function checkClubHits(attackRolls) {
   return clubDamage
 }
 /* ---------------------------------------------------------------------------- */
+function checkDoubles(rolls) {
+  let crits = 0
+  for (i = 0; i < rolls.length; i++) {
+    const dieOne = rolls[i]
+    console.log([dieOne.match, dieOne.crit])
+    for (j = 0; j < rolls.length; j++) {
+      const dieTwo = rolls[j]
+      if (!dieOne.match && !dieOne.crit && !dieTwo.match && !dieTwo.crit && dieOne.value === dieTwo.value && i !== j) {
+        dieOne.crit = true
+        dieTwo.crit = true
+        crits++
+      }
+    }
+  }
+  return crits
+}
 
 /* ---------------------------------------------------------------------------- */
 function checkSixes(attackRolls) {
