@@ -4,6 +4,7 @@ const weaponSelectEl = document.getElementById('weaponSelect')
 const enemySelectEl = document.getElementById('enemySelect')
 const baseEnemiesToggle = document.getElementById('baseEnemies')
 const arenaEnemiesToggle = document.getElementById('arenaEnemies')
+const zoneFourEnemiesToggle = document.getElementById('zoneFourEnemies')
 const heroDiceContainer = document.getElementById('heroDiceContainer')
 const enemyDiceContainer = document.getElementById('enemyDiceContainer')
 const rollButton = document.getElementById('rollButton')
@@ -17,7 +18,7 @@ const enemyMagDefSpan = document.getElementById('enemyMagDefSpan')
 let currentWeapon = null
 let currentEnemy = null
 
-/* -------- Weapon List -----------------------------=-------------------- */
+/* -------- Weapon List ------------------------------------------------- */
 const weapons = {
   'club': {
     name: 'Club',
@@ -53,7 +54,7 @@ const weapons = {
   },
 }
 
-/* -------- Base Enemy List ---------------------=----------------------- */
+/* -------- Arena Enemy List -------------------------------------------- */
 const arenaEnemies = {
   brutusTheBashful: {
     name: 'Brutus the Bashful',
@@ -137,7 +138,7 @@ const arenaEnemies = {
   } 
 }
 
-/* -------- Arena Enemy List =------------------------------------------- */
+/* -------- Base Enemy List ---------------------------------------------- */
 const baseEnemies = {
   phytank: {
     name: 'Phytank',
@@ -187,6 +188,65 @@ const baseEnemies = {
       magic: 6
     }
   },	
+}
+
+const zoneFourEnemies = {
+  undeadKnight1: {
+    name: 'Undead Knight 1',
+    attack: 1,
+    armor: {
+      physical: 4,
+      magic: 2
+    }
+  },
+  undeadKnight2: {
+    name: 'Undead Knight 2',
+    attack: 2,
+    armor: {
+      physical: 4,
+      magic: 2
+    }
+  },
+  undeadKnight3: {
+    name: 'Undead Knight 3',
+    attack: 3,
+    armor: {
+      physical: 4,
+      magic: 2
+    }
+  },
+  undeadKnight4: {
+    name: 'Undead Knight 4',
+    attack: 4,
+    armor: {
+      physical: 4,
+      magic: 2
+    }
+  },
+  dragon4: {
+    name: 'Dragon 4',
+    attack: 4,
+    armor: {
+      physical: 2,
+      magic: 4
+    }
+  },
+  dragon5: {
+    name: 'Dragon 5',
+    attack: 5,
+    armor: {
+      physical: 2,
+      magic: 4
+    }
+  },
+  dragon6: {
+    name: 'Dragon 6',
+    attack: 6,
+    armor: {
+      physical: 2,
+      magic: 4
+    }
+  },
 }
 
 /* -------- Populate List of enemies ------------------------------------ */
@@ -385,14 +445,29 @@ arenaEnemiesToggle.addEventListener('change', function() {
   }
 })
 
+// Listen for zone 4 enemy toggle
+zoneFourEnemiesToggle.addEventListener('change', function() {
+  if (this.checked) {
+      populateEnemyList(zoneFourEnemies);
+  }
+})
+
 // Listen for enemy select
 enemySelectEl.addEventListener('change', function() {
   const selectedEnemy = this.value;
   if (selectedEnemy === 'Select') {
       currentEnemy = null;
   } else {
-      // If base is checked, enemies checks base enemies object; if arena is checked, enemies checks arena enemies object
-      const enemies = document.getElementById('baseEnemies').checked ? baseEnemies : arenaEnemies;
+      // Choose enemy list based on what is checked
+      let enemies
+      if (document.getElementById('baseEnemies').checked) {
+        enemies = baseEnemies
+      } else if (document.getElementById('arenaEnemies').checked) {
+        enemies = arenaEnemies
+      } else if (document.getElementById('zoneFourEnemies').checked) {
+        enemies = zoneFourEnemies
+        counterRollButton.classList.remove('d-none')
+      }
       currentEnemy = enemies[selectedEnemy]
       console.log(currentEnemy.attack)
       // Display enemy stats
