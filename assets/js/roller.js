@@ -4,9 +4,10 @@ const weaponSelectEl = document.getElementById('weaponSelect')
 const enemySelectEl = document.getElementById('enemySelect')
 const baseEnemiesToggle = document.getElementById('baseEnemies')
 const arenaEnemiesToggle = document.getElementById('arenaEnemies')
-const attackDiceContainer = document.getElementById('attackDiceContainer')
-const defenseDiceContainer = document.getElementById('defenseDiceContainer')
+const heroDiceContainer = document.getElementById('heroDiceContainer')
+const enemyDiceContainer = document.getElementById('enemyDiceContainer')
 const rollButton = document.getElementById('rollButton')
+const counterRollButton = document.getElementById('counterRollButton')
 const damageHeader = document.getElementById('damageHeader')
 const enemyStatsDisplay = document.getElementById('enemyStatsDisplay')
 const enemyAttackSpan = document.getElementById('enemyAttackSpan')
@@ -237,41 +238,55 @@ function attackVsDefense(attackDice, defenseDice) {
   }
   return { unblockedRolls: unblockedRollsArray.length, attackRolls: attackRollArray.sort((a, b) => a.value - b.value), defenseRolls: defenseRollArray.sort((a, b) => a.value - b.value), }
 }
-/* -------- Handle Roll ------------------------------------------------- */
+/* -------- Handle Hero Roll -------------------------------------------- */
 function handleHeroRoll() {
-  console.log(currentWeapon)
-  console.log(currentWeapon.type)
   const currentEnemyArmor = currentEnemy.armor[currentWeapon.type]
 
-  attackDiceContainer.innerText = ''
-  defenseDiceContainer.innerText = ''
+  heroDiceContainer.innerText = ''
+  enemyDiceContainer.innerText = ''
   let { unblockedRolls, attackRolls, defenseRolls, } = attackVsDefense(attackDiceNumber.value, currentEnemyArmor)
   let damage = 0
 
-  console.log(unblockedRolls)
-  console.log(attackRolls)
-  console.log(defenseRolls)
-
   if (currentWeapon === weapons.club) {
     damage = checkClubHits(attackRolls)
+  } else if (currentWeapon === weapons.magicDrain) {
+    attackRolls = multiRoll(1, 6)
+    damage = attackRolls[0].value - currentEnemy.armor.magic
+    renderAttackDice(attackRolls, heroDiceContainer)
+    damageHeader.innerText = `Damage: ${damage}`
+    return
   } else if (currentWeapon === weapons.sword) {
     const swordCrits = checkSixes(attackRolls)
     damage = unblockedRolls + swordCrits
-    renderDefenseDice(defenseRolls)
+    renderDefenseDice(defenseRolls, enemyDiceContainer)
   } else if (currentWeapon === weapons.magicStaff) {
     const staffCrits = checkDoubles(attackRolls)
     damage = unblockedRolls + staffCrits
-    renderDefenseDice(defenseRolls)
+    renderDefenseDice(defenseRolls, enemyDiceContainer)
   } else {
     damage = unblockedRolls
-    renderDefenseDice(defenseRolls)
+    renderDefenseDice(defenseRolls, enemyDiceContainer)
   }
-  renderAttackDice(attackRolls)
+  renderAttackDice(attackRolls, heroDiceContainer)
   damageHeader.innerText = `Damage: ${damage}`
+  counterRollButton.classList.remove('d-none')
+}
 
+/* -------- Handle Counter Roll ------------------------------------------ */
+function handleCounterRoll() {
+  const currentEnemyAttack = currentEnemy.attack
+  heroDiceContainer.innerText = ''
+  enemyDiceContainer.innerText = ''
+  let { unblockedRolls, attackRolls, defenseRolls, } = attackVsDefense(currentEnemyAttack, defenseDiceNumber.value)
+  let damage = unblockedRolls
+
+  renderDefenseDice(defenseRolls, heroDiceContainer)
+  renderAttackDice(attackRolls, enemyDiceContainer)
+  damageHeader.innerText = `Damage: ${damage}`
+  counterRollButton.classList.add('d-none')
 }
 /* -------- Render attack dice ------------------------------------------- */
-function renderAttackDice(attackRolls) {
+function renderAttackDice(attackRolls, container) {
   for (const roll of attackRolls) {
     const imgElement = document.createElement('img')
     imgElement.src = `assets/images/red-${roll.value}.png`
@@ -290,11 +305,11 @@ function renderAttackDice(attackRolls) {
       }, 300)
     }
 
-    attackDiceContainer.appendChild(imgElement)
+    container.appendChild(imgElement)
   }
 }
 /* -------- Render defense dice ------------------------------------------ */
-function renderDefenseDice(defenseRolls) {
+function renderDefenseDice(defenseRolls, container) {
   for (const roll of defenseRolls) {
     const imgElement = document.createElement('img')
     imgElement.src = `assets/images/blue-${roll.value}.png`
@@ -306,7 +321,7 @@ function renderDefenseDice(defenseRolls) {
       imgElement.classList.add('opacity-25')
     }
 
-    defenseDiceContainer.appendChild(imgElement)
+    container.appendChild(imgElement)
   }
 }
 /* -------- Check for rolls of 4+ -------------------------------------- */
@@ -370,6 +385,7 @@ arenaEnemiesToggle.addEventListener('change', function() {
   }
 })
 
+// Listen for enemy select
 enemySelectEl.addEventListener('change', function() {
   const selectedEnemy = this.value;
   if (selectedEnemy === 'Select') {
@@ -379,6 +395,7 @@ enemySelectEl.addEventListener('change', function() {
       const enemies = document.getElementById('baseEnemies').checked ? baseEnemies : arenaEnemies;
       currentEnemy = enemies[selectedEnemy]
       console.log(currentEnemy.attack)
+      // Display enemy stats
       enemyStatsDisplay.classList.remove('d-none')
       enemyAttackSpan.innerText = `${currentEnemy.attack}`
       enemyPhyDefSpan.innerText = `${currentEnemy.armor.physical}`
@@ -387,6 +404,7 @@ enemySelectEl.addEventListener('change', function() {
   console.log(currentEnemy)
 })
 
+// Listen for weapon select
 weaponSelectEl.addEventListener('change', function() {
   const selectedWeapon = this.value;
   if (selectedWeapon === 'Select') {
@@ -399,4 +417,7 @@ weaponSelectEl.addEventListener('change', function() {
 
 // Listen for roll button click
 rollButton.addEventListener('click', handleHeroRoll)
+
+// Listen for counter roll button click
+counterRollButton.addEventListener('click', handleCounterRoll)
 
