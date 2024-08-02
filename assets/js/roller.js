@@ -5,11 +5,15 @@ const enemySelectEl = document.getElementById('enemySelect')
 const baseEnemiesToggle = document.getElementById('baseEnemies')
 const arenaEnemiesToggle = document.getElementById('arenaEnemies')
 const zoneFourEnemiesToggle = document.getElementById('zoneFourEnemies')
+const testRollToggle = document.getElementById('testRoll')
 const heroDiceContainer = document.getElementById('heroDiceContainer')
 const enemyDiceContainer = document.getElementById('enemyDiceContainer')
+const testDiceContainer = document.getElementById('testDiceContainer')
 const rollButton = document.getElementById('rollButton')
 const counterRollButton = document.getElementById('counterRollButton')
+const testRollButton = document.getElementById('testRollButton')
 const damageHeader = document.getElementById('damageHeader')
+const passFailHeader = document.getElementById('passFailHeader')
 const enemyStatsDisplay = document.getElementById('enemyStatsDisplay')
 const enemyAttackSpan = document.getElementById('enemyAttackSpan')
 const enemyPhyDefSpan = document.getElementById('enemyPhyDefSpan')
@@ -20,7 +24,7 @@ let currentEnemy = null
 
 /* -------- Weapon List ------------------------------------------------- */
 const weapons = {
-  'club': {
+  club: {
     name: 'Club',
     type: 'physical'
   },
@@ -58,6 +62,7 @@ const weapons = {
 const arenaEnemies = {
   brutusTheBashful: {
     name: 'Brutus the Bashful',
+    life: 7,
     attack: 2,
     armor: {
       physical: 2,
@@ -66,6 +71,7 @@ const arenaEnemies = {
   },
   silasTheSlow: {
     name: 'Silas the Slow',
+    life: 7,
     attack: 2,
     armor: {
       physical: 2,
@@ -74,6 +80,7 @@ const arenaEnemies = {
   },
   lenaTheLowly: {
     name: 'Lena the Lowly',
+    life: 7,
     attack: 2,
     armor: {
       physical: 2,
@@ -82,6 +89,7 @@ const arenaEnemies = {
   },
   rolfTheMeek: {
     name: 'Rolf the Meek',
+    life: 7,
     attack: 2,
     armor: {
       physical: 2,
@@ -90,6 +98,7 @@ const arenaEnemies = {
   },
   fionaTheFierce: {
     name: 'Fiona the Fierce',
+    life: 8,
     attack: 2,
     armor: {
       physical: 3,
@@ -98,6 +107,7 @@ const arenaEnemies = {
   },
   garrickTheGallant: {
     name: 'Garrick the Gallant',
+    life: 8,
     attack: 2,
     armor: {
       physical: 3,
@@ -106,6 +116,7 @@ const arenaEnemies = {
   },
   elaraTheSwift: {
     name: 'Elara the Swift',
+    life: 8,
     attack: 2,
     armor: {
       physical: 3,
@@ -114,6 +125,7 @@ const arenaEnemies = {
   },
   dariusTheDominator: {
     name: 'Darius the Dominator',
+    life: 9,
     attack: 3,
     armor: {
       physical: 4,
@@ -122,6 +134,7 @@ const arenaEnemies = {
   },
   vesperTheValiant: {
     name: 'Vesper the Valiant',
+    life: 9,
     attack: 3,
     armor: {
       physical: 4,
@@ -130,64 +143,143 @@ const arenaEnemies = {
   },
   championCraig: {
     name: 'Champion Craig',
+    life: 10,
     attack: 4,
     armor: {
       physical: 4,
       magic: 4
     }
-  } 
+  }
 }
 
 /* -------- Base Enemy List ---------------------------------------------- */
-const baseEnemies = {
+const baseEnemies = { 
   phytank: {
     name: 'Phytank',
+    life: 5,
     attack: 1,
     armor: {
       physical: 4,
       magic: 0
     }
-  },	
+  },
   magtank: {
     name: 'Magtank',
+    life: 5,
     attack: 1,
     armor: {
       physical: 0,
       magic: 4
     }
-  },	
+  },
   defguy: {
     name: 'Defguy',
+    life: 5,
     attack: 2,
     armor: {
       physical: 3,
       magic: 3
     }
-  },	
+  },
   bigpow: {
     name: 'Bigpow',
+    life: 5,
     attack: 4,
     armor: {
       physical: 1,
       magic: 1
     }
-  },	
+  },
   normal: {
     name: 'Normal',
+    life: 5,
     attack: 3,
     armor: {
       physical: 2,
       magic: 2
     }
-  },	
+  },
   jailer: {
     name: 'Jailer',
+    life: 5,
     attack: 1,
     armor: {
       physical: 6,
       magic: 6
     }
-  },	
+  },
+  epicCurse: {
+    name: 'Epic Curse',
+    life: 6,
+    attack: 4,
+    armor: {
+      physical: 4,
+      magic: 4
+    }
+  },
+  normalCurse: {
+    name: 'Normal Curse',
+    life: 6,
+    attack: 3,
+    armor: {
+      physical: 2,
+      magic: 2
+    }
+  },
+  bigpowCurse: {
+    name: 'Bigpow Curse',
+    life: 6,
+    attack: 4,
+    armor: {
+      physical: 1,
+      magic: 1
+    }
+  },
+  phytankPlus: {
+    name: 'Phytank+',
+    life: 8,
+    attack: 2,
+    armor: {
+      physical: 5,
+      magic: 1
+    }
+  },
+  magtankPlus: {
+    name: 'Magtank+',
+    life: 8,
+    attack: 2,
+    armor: {
+      physical: 1,
+      magic: 5
+    }
+  },
+  defguyPlus: {
+    name: 'Defguy+',
+    life: 9,
+    attack: 3,
+    armor: {
+      physical: 4,
+      magic: 4
+    }
+  },
+  bigpowPlus: {
+    name: 'Bigpow+',
+    life: 6,
+    attack: 5,
+    armor: {
+      physical: 2,
+      magic: 2
+    }
+  },
+  normalPlus: {
+    name: 'Normal+',
+    life: 7,
+    attack: 4,
+    armor: {
+      physical: 3,
+      magic: 3
+    }
+  },
 }
 
 const zoneFourEnemies = {
@@ -272,13 +364,24 @@ function rollDie(number) {
   return roll
 }
 
-/* -------- Multiple Dice Roll ==---------------------------------------- */
-function multiRoll(numberofRolls, diceMax) {
+/* -------- Multiple Dice Roll ------------------------------------------ */
+function multiRoll(numberOfRolls, diceMax) {
   let rollResults = []
-  for (let i = 0; i < numberofRolls; i++) {
+  for (let i = 0; i < numberOfRolls; i++) {
     rollResults.push(rollDie(diceMax))
   }
   return rollResults
+}
+
+/* --------------- Test Roll ------------------------------------------- */
+function testRoll(testRolls, target) {
+  const testRollArray = multiRoll(testRolls, 6)
+  const rollTotal = attackRollArray.reduce((accumulator, currentValue) => {
+    return accumulator + currentValue
+  }, 0)
+
+  return {testRolls: testRollArray.sort((a, b) => a.value - b.value), rollTotal: rollTotal, result: () => rollTotal >= target ? 'Pass' : 'Fail'}
+  
 }
 /* -------- Dice roll with defense -------------------------------------- */
 function attackVsDefense(attackDice, defenseDice) {
@@ -334,6 +437,7 @@ function handleHeroRoll() {
 
 /* -------- Handle Counter Roll ------------------------------------------ */
 function handleCounterRoll() {
+  currentWeapon = null
   const currentEnemyAttack = currentEnemy.attack
   heroDiceContainer.innerText = ''
   enemyDiceContainer.innerText = ''
@@ -344,6 +448,8 @@ function handleCounterRoll() {
   renderAttackDice(attackRolls, enemyDiceContainer)
   damageHeader.innerText = `Damage: ${damage}`
   counterRollButton.classList.add('d-none')
+
+  currentWeapon = weapons[weaponSelectEl.value]
 }
 /* -------- Render attack dice ------------------------------------------- */
 function renderAttackDice(attackRolls, container) {
@@ -384,6 +490,13 @@ function renderDefenseDice(defenseRolls, container) {
     container.appendChild(imgElement)
   }
 }
+/* -------- Display enemy stats --------------------------------------- */
+    function displayEnemyStats() {
+      enemyStatsDisplay.classList.remove('d-none')
+      enemyAttackSpan.innerText = `${currentEnemy.attack}`
+      enemyPhyDefSpan.innerText = `${currentEnemy.armor.physical}`
+      enemyMagDefSpan.innerText = `${currentEnemy.armor.magic}`
+    }
 /* -------- Check for rolls of 4+ -------------------------------------- */
 function checkClubHits(rolls) {
   let clubDamage = 0
@@ -401,7 +514,6 @@ function checkDoubles(rolls) {
   let crits = 0
   for (i = 0; i < rolls.length; i++) {
     const dieOne = rolls[i]
-    console.log([dieOne.match, dieOne.crit])
     for (j = 0; j < rolls.length; j++) {
       const dieTwo = rolls[j]
       if (!dieOne.match && !dieOne.crit && !dieTwo.match && !dieTwo.crit && dieOne.value === dieTwo.value && i !== j) {
@@ -432,62 +544,56 @@ function checkSixes(attackRolls) {
 populateEnemyList(baseEnemies)
 
 // Listen for base enemy toggle
-baseEnemiesToggle.addEventListener('change', function() {
+baseEnemiesToggle.addEventListener('change', function () {
   if (this.checked) {
-      populateEnemyList(baseEnemies);
+    populateEnemyList(baseEnemies);
   }
 })
 
 // Listen for arena enemy toggle
-arenaEnemiesToggle.addEventListener('change', function() {
+arenaEnemiesToggle.addEventListener('change', function () {
   if (this.checked) {
-      populateEnemyList(arenaEnemies);
+    populateEnemyList(arenaEnemies);
   }
 })
 
 // Listen for zone 4 enemy toggle
-zoneFourEnemiesToggle.addEventListener('change', function() {
+zoneFourEnemiesToggle.addEventListener('change', function () {
   if (this.checked) {
-      populateEnemyList(zoneFourEnemies);
+    populateEnemyList(zoneFourEnemies);
   }
 })
 
 // Listen for enemy select
-enemySelectEl.addEventListener('change', function() {
+enemySelectEl.addEventListener('change', function () {
   const selectedEnemy = this.value;
   if (selectedEnemy === 'Select') {
-      currentEnemy = null;
+    currentEnemy = null;
   } else {
-      // Choose enemy list based on what is checked
-      let enemies
-      if (document.getElementById('baseEnemies').checked) {
-        enemies = baseEnemies
-      } else if (document.getElementById('arenaEnemies').checked) {
-        enemies = arenaEnemies
-      } else if (document.getElementById('zoneFourEnemies').checked) {
-        enemies = zoneFourEnemies
-        counterRollButton.classList.remove('d-none')
-      }
-      currentEnemy = enemies[selectedEnemy]
-      console.log(currentEnemy.attack)
-      // Display enemy stats
-      enemyStatsDisplay.classList.remove('d-none')
-      enemyAttackSpan.innerText = `${currentEnemy.attack}`
-      enemyPhyDefSpan.innerText = `${currentEnemy.armor.physical}`
-      enemyMagDefSpan.innerText = `${currentEnemy.armor.magic}`
+    // Choose enemy list based on what is checked
+    if (document.getElementById('baseEnemies').checked) {
+      currentEnemy = baseEnemies[selectedEnemy]
+      displayEnemyStats()
+    } else if (document.getElementById('arenaEnemies').checked) {
+      currentEnemy = arenaEnemies[selectedEnemy]
+      displayEnemyStats()
+    } else if (document.getElementById('zoneFourEnemies').checked) {
+      currentEnemy = zoneFourEnemies[selectedEnemy]
+      displayEnemyStats()
+    }
+
   }
-  console.log(currentEnemy)
+
 })
 
 // Listen for weapon select
-weaponSelectEl.addEventListener('change', function() {
+weaponSelectEl.addEventListener('change', function () {
   const selectedWeapon = this.value;
   if (selectedWeapon === 'Select') {
-      currentWeapon = null;
+    currentWeapon = null;
   } else {
-      currentWeapon = weapons[selectedWeapon]
+    currentWeapon = weapons[selectedWeapon]
   }
-  console.log(currentWeapon)
 })
 
 // Listen for roll button click
